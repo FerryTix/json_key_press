@@ -1,15 +1,19 @@
 import setuptools
 
-with open('README.md') as r:
-	long_description = r.read()
-
 setuptools.setup(
 	name="json_key_press",
 	version="1.0.0",
 	author="Hendrik Lankers",
 	author_email="hendrik.lankers.hl@googlemail.com",
 	description="Tool for compression and decompression of dictionary keys for json transfer over limited networks",
-	long_description=long_description,
+	long_description="""
+# JSON Key Press
+
+This project aims at minimizing the size of json when transferring data over the network
+by compressing the keys of a dictionary.
+
+A more detailed description can be found [on github](https://github.com/elsholz/json_key_press).
+""",
 	long_description_content_type="text/markdown",
 	url="https://github.com/elsholz/json_key_press",
 	packages=setuptools.find_packages(),
