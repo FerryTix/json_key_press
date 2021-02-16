@@ -63,5 +63,5 @@ In combination with gzip compression, the key shortening is a good first step to
 reduce the size of the object during transfer, e.g. over an expensive or limited 
 network.
 
-For some other to use the class JSONKeyPress see the example in the test file.
+For some other ways to use the class JSONKeyPress see the example in the test file.
 
