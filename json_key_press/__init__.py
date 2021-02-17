@@ -1,1 +1,1 @@
-from .key_press import JSONKeyPress, CompressibleObject, ShortKey, LongKey
+from .key_press import JSONKeyPress, CompressibleObject

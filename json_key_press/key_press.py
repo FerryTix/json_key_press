@@ -1,11 +1,9 @@
-from json import dumps, loads
 import abc
-from typing import Union
 from inspect import isclass
 
 
 class CompressibleObject(abc.ABC):
-    """Abstract case class for dict values that can be compressed and uncompressed."""
+    """Abstract case class for dict values that can be compressed and decompressed."""
 
     def compress(self, o):
         pass
@@ -15,32 +13,6 @@ class CompressibleObject(abc.ABC):
 
     def __str__(self):
         return self.__class__.__name__
-
-
-class ShortKey(str):
-    """Class for short (compressed) keys in a dictionary."""
-
-    def __init__(self, short):
-        self.short = short
-
-    def __str__(self):
-        return '"' + self.short + '"'
-
-    def __repr__(self):
-        return str(self)
-
-
-class LongKey(str):
-    """CLass for long (uncompressed) keys in a dictionary."""
-
-    def __init__(self, long):
-        self.long = long
-
-    def __str__(self):
-        return '"' + self.long + '"'
-
-    def __repr__(self):
-        return str(self)
 
 
 class JSONKeyPress(CompressibleObject):
@@ -58,7 +30,7 @@ class JSONKeyPress(CompressibleObject):
     class KeyPair:
         """Combines a short and a long key, only used for pretty printing."""
 
-        def __init__(self, short: ShortKey, long: LongKey):
+        def __init__(self, short, long):
             self.short = short
             self.long = long
 
@@ -72,35 +44,31 @@ class JSONKeyPress(CompressibleObject):
             return str(self)
 
     class Data:
-        def __init__(self, parent, compressed, uncompressed):
+        def __init__(self, parent, compressed, decompressed):
             self.parent = parent
             self._compressed = compressed
-            self._uncompressed = uncompressed
+            self._decompressed = decompressed
 
         def _compress(self):
             if not self._compressed:
-                self._compressed = self.parent.compress(self._uncompressed)
+                self._compressed = self.parent.compress(self._decompressed)
             return self._compressed
 
         def _decompress(self):
-            if not self._uncompressed:
-                self._uncompressed = self.parent.decompress(self._compressed)
-            return self._uncompressed
+            if not self._decompressed:
+                self._decompressed = self.parent.decompress(self._compressed)
+            return self._decompressed
 
-        def __getitem__(self, item: Union[ShortKey, LongKey]):
-            """Get an Item from a dict that follos the schema given either
-            a long (uncompressed) or a short (compressed) key."""
-            if isinstance(item, ShortKey):
-                self._compress()
-                return self._compressed[str(item.short)]
-            elif isinstance(item, LongKey):
-                self._decompress()
-                return self._uncompressed[str(item.long)]
-            else:
-                raise ValueError("Subscription must use either a ShortKey or a LongKey object, not " + type(item))
+        def get_compressed(self):
+            self._compress()
+            return self._compressed
+        def get_decompressed(self):
+            self._decompress()
 
-    def __call__(self, compressed: dict = None, uncompressed: dict = None):
-        return self.Data(parent=self, compressed=compressed, uncompressed=uncompressed)
+            return self._decompressed
+
+    def __call__(self, compressed: dict = None, decompressed: dict = None):
+        return self.Data(parent=self, compressed=compressed, decompressed=decompressed)
 
     def __init__(self, schema, alphabet=None):
         if alphabet:
@@ -108,10 +76,6 @@ class JSONKeyPress(CompressibleObject):
         self.schema = schema
         # self.short_keyed = self._extract_keys(self.schema)
         self._short_keyed, self._long_keyed, self._paired_keys = self._extract_keys(self.schema)
-
-    def _long_key(self, k):
-        """Returns the long version of a key list given the short key name list"""
-        return self.short_keyed[k]
 
     def _extract_keys(self, o):
         """Extracts a nested list of keys from a json schema."""
@@ -135,7 +99,7 @@ class JSONKeyPress(CompressibleObject):
 
         for i, (k, v) in enumerate(o.items()):
             s, l, p = self._extract_keys(v)
-            sk, lk = ShortKey(self._short_key(i)), LongKey(k)
+            sk, lk = self._short_key(i), k
             short.update({sk: (lk, s)})
             long.update({lk: (sk, l)})
             pairs.update({self.KeyPair(sk, lk): p})

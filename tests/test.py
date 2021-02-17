@@ -1,4 +1,4 @@
-from json_key_press import CompressibleObject, JSONKeyPress, LongKey, ShortKey
+from json_key_press import CompressibleObject, JSONKeyPress
 import json
 
 
@@ -56,6 +56,5 @@ if __name__ == '__main__':
     print(json.dumps(compr, indent=4))
     print(json.dumps(decompr, indent=4))
 
-    o = t(uncompressed=test_long)
-    assert o[ShortKey("B")] == 10
-    assert o[LongKey("amount")] == 10
+    o = t(decompressed=test_long)
+    assert o.get_compressed()["B"] == 10 == o.get_decompressed()["amount"]
