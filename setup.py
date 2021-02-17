@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
 	name="json_key_press",
-	version="2.0.0",
+	version="2.0",
 	author="Hendrik Lankers",
 	author_email="hendrik.lankers.hl@googlemail.com",
 	description="Tool for compression and decompression of dictionary keys for json transfer over limited networks",
